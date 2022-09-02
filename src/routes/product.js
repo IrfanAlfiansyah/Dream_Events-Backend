@@ -9,5 +9,6 @@ const productController = require("../controllers/product");
 // });
 
 Router.get("/greetings", productController.showGreetings);
+Router.get("/", productController.getAllProduct);
 
 module.exports = Router;
