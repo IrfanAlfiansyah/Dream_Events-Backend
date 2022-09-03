@@ -1,11 +1,11 @@
 module.exports = {
-  response: (res, status, msg, data, pagination) => {
+  response: (response, status, msg, data, pagination) => {
     const result = {
       status,
       msg,
       data,
       pagination,
     };
-    return res.status(status).json(result);
+    return response.status(status).json(result);
   },
 };
