@@ -10,7 +10,7 @@ module.exports = {
         totalTicket,
         totalPayment,
         paymentMethod,
-        statusPayment,
+        section,
       } = request.body;
       const setData = {
         userId,
@@ -18,16 +18,74 @@ module.exports = {
         totalTicket,
         totalPayment,
         paymentMethod,
-        statusPayment,
+        statusPayment: true,
       };
 
       const result = await bookingModel.createBooking(setData);
+      const { bookingId } = result.data[0];
+      const resultBookingSection = await Promise.all(
+        section.map(async (Element) => {
+          try {
+            await bookingModel.createBookingSection(Element, false, bookingId);
+            return Element;
+          } catch (error) {
+            return error.error;
+          }
+        })
+      );
+      const resultSection = {
+        ...result.data[0],
+        section: resultBookingSection,
+      };
 
       return wrapper.response(
         response,
         result.status,
         "Success Create Data",
-        result.data
+        resultSection
+      );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  getAllBooking: async (request, response) => {
+    try {
+      let { page, limit, userId } = request.query;
+      page = +page;
+      limit = +limit;
+      userId = `${userId}`;
+
+      const totalData = await bookingModel.getCountBooking();
+      const totalPage = Math.ceil(totalData / limit);
+      const pagination = {
+        page,
+        totalPage,
+        limit,
+        totalData,
+      };
+
+      const offset = page * limit - limit;
+
+      const result = await bookingModel.getAllBooking(offset, limit, userId);
+      if (result.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data By Id ${userId} Not Found`,
+          []
+        );
+      }
+      return wrapper.response(
+        response,
+        result.status,
+        "Success Get Data !",
+        result.data,
+        pagination
       );
     } catch (error) {
       const {

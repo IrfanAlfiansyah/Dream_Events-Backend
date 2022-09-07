@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
+require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const xss = require("xss-clean");
@@ -8,8 +10,9 @@ const bodyParser = require("body-parser");
 const routerNavigation = require("./routes");
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT;
 
+app.use(cors());
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(xss());

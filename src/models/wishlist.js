@@ -14,12 +14,13 @@ module.exports = {
           }
         });
     }),
-  getAllWishlist: (offset, limit) =>
+  getAllWishlist: (offset, limit, userId) =>
     new Promise((resolve, reject) => {
       supabase
         .from("wishlist")
-        .select("*, user(*), event(*)")
+        .select("*, event(*)")
         .range(offset, offset + limit - 1)
+        .eq("userId", userId)
         .then((result) => {
           if (!result.error) {
             resolve(result);

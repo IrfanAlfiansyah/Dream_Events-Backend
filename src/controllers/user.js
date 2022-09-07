@@ -68,7 +68,6 @@ module.exports = {
   },
   createUser: async (request, response) => {
     try {
-      console.log(request.body);
       const {
         name,
         username,
@@ -109,7 +108,6 @@ module.exports = {
   },
   updateUser: async (request, response) => {
     try {
-      console.log(request.body);
       const { userId } = request.params;
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;

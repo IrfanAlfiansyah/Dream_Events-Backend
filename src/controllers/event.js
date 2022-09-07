@@ -4,9 +4,10 @@ const wrapper = require("../utils/wrapper");
 module.exports = {
   getAllEvent: async (request, response) => {
     try {
-      let { page, limit } = request.query;
+      let { page, limit, name } = request.query;
       page = +page;
       limit = +limit;
+      name = `${name}`;
 
       const totalData = await eventModel.getCountEvent();
       const totalPage = Math.ceil(totalData / limit);
@@ -19,7 +20,15 @@ module.exports = {
 
       const offset = page * limit - limit;
 
-      const result = await eventModel.getAllEvent(offset, limit);
+      const result = await eventModel.getAllEvent(offset, limit, name);
+      if (result.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data By Id ${name} Not Found`,
+          []
+        );
+      }
       return wrapper.response(
         response,
         result.status,
