@@ -13,12 +13,24 @@ Router.get("/:eventId", eventController.getEventById);
 Router.post(
   "/",
   authMiddleware.authentication,
+  authMiddleware.isAdmin,
   uploadMiddleware.uploadEvent,
   eventController.createEvent
 );
 
-Router.patch("/:eventId", eventController.updateEvent);
+Router.patch(
+  "/:eventId",
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  uploadMiddleware.uploadEvent,
+  eventController.updateEvent
+);
 
-Router.delete("/:eventId", eventController.deleteEvent);
+Router.delete(
+  "/:eventId",
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  eventController.deleteEvent
+);
 
 module.exports = Router;

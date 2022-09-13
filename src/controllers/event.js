@@ -1,5 +1,6 @@
 const eventModel = require("../models/event");
 const wrapper = require("../utils/wrapper");
+const cloudinary = require("../config/cloudinary");
 
 module.exports = {
   getAllEvent: async (request, response) => {
@@ -79,6 +80,7 @@ module.exports = {
     try {
       const { name, category, location, detail, dateTimeShow, price } =
         request.body;
+      const { filename, mimetype } = request.file;
       const setData = {
         name,
         category,
@@ -86,6 +88,7 @@ module.exports = {
         detail,
         dateTimeShow,
         price,
+        image: filename ? `${filename}.${mimetype.split("/")[1]}` : "",
       };
 
       const result = await eventModel.createEvent(setData);
@@ -97,6 +100,7 @@ module.exports = {
         result.data
       );
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -107,9 +111,11 @@ module.exports = {
   },
   updateEvent: async (request, response) => {
     try {
+      console.log(request.body);
       const { eventId } = request.params;
       const { name, category, location, detail, dateTimeShow, price } =
         request.body;
+      const { filename, mimetype } = request.file;
 
       const checkId = await eventModel.getEventById(eventId);
 
@@ -129,7 +135,23 @@ module.exports = {
         detail,
         dateTimeShow,
         price,
+        image: filename ? `${filename}.${mimetype.split("/")[1]}` : "",
+        updatedAt: new Date(Date.now()),
       };
+
+      // eslint-disable-next-line no-restricted-syntax, guard-for-in
+      for (const data in setData) {
+        if (!setData[data]) {
+          delete setData[data];
+        }
+      }
+
+      const imageId = checkId.data[0].image.split(".")[0];
+      if (request.file) {
+        await cloudinary.uploader.destroy(imageId, (result) => {
+          console.log(result);
+        });
+      }
 
       const result = await eventModel.updateEvent(eventId, setData);
 
@@ -140,6 +162,7 @@ module.exports = {
         result.data
       );
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -163,14 +186,15 @@ module.exports = {
         );
       }
 
-      const result = await eventModel.deleteEvent(eventId);
+      const image = checkId.data[0].image.split(".")[0];
+      if (image) {
+        await cloudinary.uploader.destroy(image, (result) => {
+          console.log(result);
+        });
+      }
+      await eventModel.deleteEvent(eventId);
 
-      return wrapper.response(
-        response,
-        200,
-        "Success Delete Data",
-        result.data
-      );
+      return wrapper.response(response, 200, "Success Delete Data");
     } catch (error) {
       const {
         status = 500,

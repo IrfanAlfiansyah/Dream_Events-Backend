@@ -24,7 +24,7 @@ module.exports = {
         username,
         email,
         password: hashedPassword,
-        role: "user",
+        role: "admin",
       };
       const newResult = await authModel.register(setData);
       return wrapper.response(
