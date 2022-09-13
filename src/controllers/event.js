@@ -6,7 +6,7 @@ module.exports = {
     try {
       let { page, limit, name } = request.query;
       page = +page;
-      limit = +limit;
+      limit = 3;
       name = `${name}`;
 
       const totalData = await eventModel.getCountEvent();
