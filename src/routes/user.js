@@ -17,7 +17,7 @@ Router.get(
 Router.post("/", authMiddleware.authentication, userController.createUser);
 
 Router.patch(
-  "/:userId",
+  "/updateUser/:userId",
   authMiddleware.authentication,
   uploadMiddleware.uploadImageUser,
   userController.updateUser
@@ -27,6 +27,12 @@ Router.delete(
   "/:userId",
   authMiddleware.authentication,
   userController.deleteUser
+);
+
+Router.patch(
+  "/updatePassword/:userId",
+  authMiddleware.authentication,
+  userController.updatePassword
 );
 
 module.exports = Router;

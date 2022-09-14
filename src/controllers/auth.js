@@ -86,4 +86,11 @@ module.exports = {
       return wrapper.response(response, status, statusText, errorData);
     }
   },
+  // logout: async (request, response) => {
+  //   try {
+  //     let token = request.headers.authorization;
+  //     const { accessToken } = request
+  //   } catch (error) {
+  //   }
+  // }
 };

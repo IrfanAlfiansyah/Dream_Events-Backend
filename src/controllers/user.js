@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const userModel = require("../models/user");
 const wrapper = require("../utils/wrapper");
 const cloudinary = require("../config/cloudinary");
@@ -110,10 +111,11 @@ module.exports = {
   },
   updateUser: async (request, response) => {
     try {
+      console.log(request.body);
       const { userId } = request.params;
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;
-      const { filename, mimetype } = request.file;
+      const { filename } = request.file;
 
       const checkId = await userModel.getUserById(userId);
 
@@ -133,16 +135,9 @@ module.exports = {
         profession,
         nationality,
         dateOfBirth,
-        image: filename ? `${filename}.${mimetype.split("/")[1]}` : "",
+        image: filename ? `${filename}` : "",
         updatedAt: new Date(Date.now()),
       };
-
-      // eslint-disable-next-line no-restricted-syntax
-      for (const data in setData) {
-        if (!setData[data]) {
-          delete setData[data];
-        }
-      }
 
       const imageId = checkId.data[0].image.split(".")[0];
       if (request.file) {
@@ -200,6 +195,48 @@ module.exports = {
         result.data
       );
     } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  updatePassword: async (request, response) => {
+    try {
+      console.log(request.body);
+      const { oldPassword, confirmPassword, newPassword } = request.body;
+      const { userId } = request.params;
+      const checkOldPassword = await userModel.getUserById(userId);
+      console.log(checkOldPassword);
+
+      const isValid = await bcrypt.compare(
+        oldPassword,
+        checkOldPassword.data[0].password
+      );
+      if (!isValid) {
+        return wrapper.response(response, 400, "Wrong Password");
+      }
+      if (newPassword !== confirmPassword) {
+        return wrapper.response(response, 400, "Your Password Doesn't Match");
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      const setData = {
+        password: hashedPassword,
+        updatedAt: new Date(Date.now()),
+      };
+      const newResult = await userModel.updatePassword(userId, setData);
+      return wrapper.response(
+        response,
+        201,
+        "Success Update Password",
+        newResult.data
+      );
+    } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",

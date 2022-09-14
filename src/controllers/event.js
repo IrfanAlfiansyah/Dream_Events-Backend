@@ -78,9 +78,14 @@ module.exports = {
   },
   createEvent: async (request, response) => {
     try {
+      console.log(request.file);
+      if (request.file === null) {
+        return wrapper.response(response, 400, "Image must be filled", null);
+      }
       const { name, category, location, detail, dateTimeShow, price } =
         request.body;
-      const { filename, mimetype } = request.file;
+      const { filename } = request.file;
+
       const setData = {
         name,
         category,
@@ -88,7 +93,7 @@ module.exports = {
         detail,
         dateTimeShow,
         price,
-        image: filename ? `${filename}.${mimetype.split("/")[1]}` : "",
+        image: filename ? `${filename}` : "",
       };
 
       const result = await eventModel.createEvent(setData);
@@ -138,13 +143,6 @@ module.exports = {
         image: filename ? `${filename}.${mimetype.split("/")[1]}` : "",
         updatedAt: new Date(Date.now()),
       };
-
-      // eslint-disable-next-line no-restricted-syntax, guard-for-in
-      for (const data in setData) {
-        if (!setData[data]) {
-          delete setData[data];
-        }
-      }
 
       const imageId = checkId.data[0].image.split(".")[0];
       if (request.file) {

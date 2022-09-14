@@ -55,4 +55,18 @@ module.exports = {
           }
         });
     }),
+  getBookingByEventId: (eventId) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("booking")
+        .select(`bookingId, eventId, statusPayment, bookingSection ( section )`)
+        .eq("eventId", eventId)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
 };

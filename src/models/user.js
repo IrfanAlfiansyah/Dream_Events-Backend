@@ -69,6 +69,20 @@ module.exports = {
           }
         });
     }),
+  updatePassword: (userId, password) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("user")
+        .update(password)
+        .eq("userId", userId)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
   deleteUser: (userId) =>
     new Promise((resolve, reject) => {
       supabase

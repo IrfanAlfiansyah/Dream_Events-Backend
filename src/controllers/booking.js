@@ -1,5 +1,6 @@
 const bookingModel = require("../models/booking");
 const wrapper = require("../utils/wrapper");
+const groupingSection = require("../utils/groupingSection");
 
 module.exports = {
   createBooking: async (request, response) => {
@@ -88,6 +89,31 @@ module.exports = {
         pagination
       );
     } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  getBookingByEventId: async (request, response) => {
+    try {
+      console.log(request.query);
+      const { eventId } = request.query;
+
+      const result = await bookingModel.getBookingByEventId(eventId);
+
+      const newResult = groupingSection(result);
+
+      return wrapper.response(
+        response,
+        newResult.status,
+        "Success Get Booking Section !",
+        newResult
+      );
+    } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
