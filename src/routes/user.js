@@ -19,13 +19,8 @@ Router.post("/", authMiddleware.authentication, userController.createUser);
 Router.patch(
   "/:userId",
   authMiddleware.authentication,
-  userController.uploadImage
-);
-
-Router.post(
-  "/:userId",
-  authMiddleware.authentication,
-  userController.uploadImage
+  uploadMiddleware.uploadImageUser,
+  userController.updateUser
 );
 
 Router.delete(

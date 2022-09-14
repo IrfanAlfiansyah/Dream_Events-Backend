@@ -113,6 +113,7 @@ module.exports = {
       const { userId } = request.params;
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;
+      const { filename, mimetype } = request.file;
 
       const checkId = await userModel.getUserById(userId);
 
@@ -132,45 +133,6 @@ module.exports = {
         profession,
         nationality,
         dateOfBirth,
-        updatedAt: new Date(Date.now()),
-      };
-
-      const result = await userModel.updateUser(userId, setData);
-
-      return wrapper.response(
-        response,
-        result.status,
-        "Success Update Data",
-        result.data
-      );
-    } catch (error) {
-      const {
-        status = 500,
-        statusText = "Internal Server Error",
-        error: errorData = null,
-      } = error;
-      return wrapper.response(response, status, statusText, errorData);
-    }
-  },
-
-  uploadImage: async (request, response) => {
-    try {
-      const { userId } = request.params;
-
-      const checkId = await userModel.getUserById(userId);
-
-      if (checkId.data.length < 1) {
-        return wrapper.response(
-          response,
-          404,
-          `Data By Id ${userId} Not Found`,
-          []
-        );
-      }
-
-      const { filename, mimetype } = request.file;
-
-      const setData = {
         image: filename ? `${filename}.${mimetype.split("/")[1]}` : "",
         updatedAt: new Date(Date.now()),
       };
@@ -194,7 +156,7 @@ module.exports = {
       return wrapper.response(
         response,
         result.status,
-        "Success Upload Image",
+        "Success Update Data",
         result.data
       );
     } catch (error) {
@@ -223,6 +185,12 @@ module.exports = {
         );
       }
 
+      const image = checkId.data[0].image.split(".")[0];
+      if (image) {
+        await cloudinary.uploader.destroy(image, (result) => {
+          console.log(result);
+        });
+      }
       const result = await userModel.deleteUser(userId);
 
       return wrapper.response(
