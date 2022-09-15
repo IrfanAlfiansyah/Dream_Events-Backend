@@ -11,8 +11,9 @@ Router.post(
   bookingController.createBooking
 );
 Router.get("/", authMiddleware.authentication, bookingController.getAllBooking);
+
 Router.get(
-  "/:eventId",
+  "/section",
   authMiddleware.authentication,
   bookingController.getBookingByEventId
 );

@@ -1,6 +1,7 @@
 const bookingModel = require("../models/booking");
 const wrapper = require("../utils/wrapper");
 const groupingSection = require("../utils/groupingSection");
+const supabase = require("../config/supabase");
 
 module.exports = {
   createBooking: async (request, response) => {
@@ -99,21 +100,26 @@ module.exports = {
   },
   getBookingByEventId: async (request, response) => {
     try {
-      console.log(request.query);
       const { eventId } = request.query;
 
       const result = await bookingModel.getBookingByEventId(eventId);
-
+      if (result.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data By eventId ${eventId} Not Found`,
+          []
+        );
+      }
       const newResult = groupingSection(result);
 
       return wrapper.response(
         response,
-        newResult.status,
+        result.status,
         "Success Get Booking Section !",
         newResult
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
