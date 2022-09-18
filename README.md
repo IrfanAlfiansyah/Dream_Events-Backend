@@ -33,10 +33,14 @@ Open .env file on your favorite code editor, and copy paste this code below :
 PORT // Database host
 SUPABASE_URL // Database URL
 SUPABASE_KEY // Database KEY
-CLOUD_NAME // Cloud_name
-API_KEY // Api_key
-API_SECRET // Api_secret
-
+CLOUD_NAME // Cloud name
+API_KEY // Api key
+API_SECRET // Api secret
+REDIS_PASSWORD // Redis password
+REDIS_HOST // Redis host
+REDIS_PORT // Redis port
+ACCESS_KEYS // Access keys
+REFRESH_KEYS // Refresh keys
 ```
 
 ## License
