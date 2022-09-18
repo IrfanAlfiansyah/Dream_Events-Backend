@@ -1,14 +1,16 @@
 const eventModel = require("../models/event");
 const wrapper = require("../utils/wrapper");
 const cloudinary = require("../config/cloudinary");
+const client = require("../config/redis");
 
 module.exports = {
   getAllEvent: async (request, response) => {
     try {
-      let { page, limit, name } = request.query;
+      let { page, limit, sort, searchDate, searchName } = request.query;
       page = +page;
-      limit = 3;
-      name = `${name}`;
+      limit = +limit;
+      sort = `${sort}`;
+      searchDate = `${searchDate}`;
 
       const totalData = await eventModel.getCountEvent();
       const totalPage = Math.ceil(totalData / limit);
@@ -21,15 +23,41 @@ module.exports = {
 
       const offset = page * limit - limit;
 
-      const result = await eventModel.getAllEvent(offset, limit, name);
-      if (result.data.length < 1) {
-        return wrapper.response(
-          response,
-          404,
-          `Data By Id ${name} Not Found`,
-          []
-        );
+      let sortColumn = "dateTimeShow";
+      let sortType = "asc";
+      if (sort) {
+        sortColumn = sort.split(" ")[0];
+        sortType = sort.split(" ")[1];
       }
+      if (sortType.toLowerCase() === "asc") {
+        sortType = true;
+      } else {
+        sortType = false;
+      }
+
+      let day;
+      let nextDay;
+      if (searchDate) {
+        day = new Date(searchDate);
+        nextDay = new Date(new Date(day).setDate(day.getDate() + 1));
+      }
+
+      const result = await eventModel.getAllEvent(
+        offset,
+        limit,
+        sortColumn,
+        sortType,
+        day,
+        nextDay,
+        searchName
+      );
+
+      client.setEx(
+        `getEvent:${JSON.stringify(request.query)}`,
+        3600,
+        JSON.stringify({ result: result.data, pagination })
+      );
+
       return wrapper.response(
         response,
         result.status,
@@ -38,6 +66,7 @@ module.exports = {
         pagination
       );
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -61,6 +90,8 @@ module.exports = {
         );
       }
 
+      client.setEx(`getEvent:${eventId}`, 3600, JSON.stringify(result.data));
+
       return wrapper.response(
         response,
         result.status,
@@ -68,6 +99,7 @@ module.exports = {
         result.data
       );
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -78,7 +110,6 @@ module.exports = {
   },
   createEvent: async (request, response) => {
     try {
-      console.log(request.file);
       if (request.file === null) {
         return wrapper.response(response, 400, "Image must be filled", null);
       }
@@ -105,7 +136,6 @@ module.exports = {
         result.data
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -116,7 +146,6 @@ module.exports = {
   },
   updateEvent: async (request, response) => {
     try {
-      console.log(request.body);
       const { eventId } = request.params;
       const { name, category, location, detail, dateTimeShow, price } =
         request.body;
@@ -160,7 +189,6 @@ module.exports = {
         result.data
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",

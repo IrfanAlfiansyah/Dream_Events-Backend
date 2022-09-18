@@ -14,21 +14,48 @@ module.exports = {
           }
         });
     }),
-  getAllEvent: (offset, limit, name) =>
+  // getAllEvent: (offset, limit, name) =>
+  //   new Promise((resolve, reject) => {
+  //     supabase
+  //       .from("event")
+  //       .select("*")
+  //       .range(offset, offset + limit - 1)
+  //       .ilike("name", `%${name}%`)
+  //       .order("dateTimeShow", { ascending: true })
+  //       .then((result) => {
+  //         if (!result.error) {
+  //           resolve(result);
+  //         } else {
+  //           reject(result);
+  //         }
+  //       });
+  //   }),
+  getAllEvent: (offset, limit, sortColumn, sortType, day, nextDay) =>
     new Promise((resolve, reject) => {
-      supabase
+      // page = 1
+      // limit = 10
+      // offset = 0
+      // .range(0, 9) // offset(0) + limit(10) - 1 = 9
+      let query = supabase
         .from("event")
         .select("*")
         .range(offset, offset + limit - 1)
-        .ilike("name", `%${name}%`)
-        .order("dateTimeShow", { ascending: true })
-        .then((result) => {
-          if (!result.error) {
-            resolve(result);
-          } else {
-            reject(result);
-          }
-        });
+        .order(sortColumn, { ascending: sortType })
+        .ilike("name", `%...%`);
+      // kondisi untuk search by date
+      if (day) {
+        query = query
+          .gt("dateTimeShow", `${day.toISOString()}`)
+          .lt("dateTimeShow", `${nextDay.toISOString()}`);
+      }
+
+      query.then((result) => {
+        if (!result.error) {
+          resolve(result);
+        } else {
+          reject(result);
+        }
+      });
     }),
   getEventById: (eventId) =>
     new Promise((resolve, reject) => {
