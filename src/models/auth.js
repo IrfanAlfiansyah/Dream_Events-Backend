@@ -28,4 +28,18 @@ module.exports = {
           }
         });
     }),
+  verif: (userId) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("user")
+        .select("*")
+        .eq("userId", userId)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
 };

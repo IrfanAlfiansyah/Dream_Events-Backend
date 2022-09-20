@@ -1,8 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const otpGenerator = require("otp-generator");
 const authModel = require("../models/auth");
 const wrapper = require("../utils/wrapper");
 const client = require("../config/redis");
+const { sendMail } = require("../utils/mail");
 
 module.exports = {
   register: async (request, response) => {
@@ -25,13 +27,30 @@ module.exports = {
         username,
         email,
         password: hashedPassword,
-        role: "admin",
+        role: "user",
       };
       const newResult = await authModel.register(setData);
+
+      const OTP = otpGenerator.generate(6, {
+        upperCaseAlphabets: false,
+        specialChars: false,
+      });
+
+      const setMailOptions = {
+        to: email,
+        name: username,
+        subject: "Email Verification !",
+        template: "verificationEmail.html",
+        buttonUrl: `http://localhost:3001/api/auth/verif`,
+        OTP: `${OTP}`,
+      };
+
+      await sendMail(setMailOptions);
+
       return wrapper.response(
         response,
-        newResult.status,
-        "Register Success",
+        200,
+        "Register success, please check your email !",
         newResult.data.map((el) => el.userId)
       );
     } catch (error) {
@@ -101,6 +120,7 @@ module.exports = {
       let token = request.headers.authorization;
       const { refreshtoken } = request.headers;
 
+      // eslint-disable-next-line prefer-destructuring
       token = token.split(" ")[1];
       client.setEx(`accessToken:${token}`, 3600 * 48, token);
       client.setEx(`refreshToken:${refreshtoken}`, 3600 * 48, refreshtoken);
@@ -141,6 +161,7 @@ module.exports = {
       let token;
       let newRefreshToken;
 
+      // eslint-disable-next-line consistent-return
       jwt.verify(refreshtoken, process.env.REFRESH_KEYS, (error, result) => {
         if (error) {
           return wrapper.response(response, 403, error.message, null);
@@ -164,7 +185,20 @@ module.exports = {
         refreshToken: newRefreshToken,
       });
     } catch (error) {
-      console.log(error);
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  verif: async (request, response) => {
+    try {
+      // eslint-disable-next-line no-unused-vars
+      const { OTP } = request.body;
+      return wrapper.response(response, 200, "Verify Success", null);
+    } catch (error) {
       const {
         status = 500,
         statusText = "Internal Server Error",

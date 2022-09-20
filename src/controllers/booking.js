@@ -1,7 +1,6 @@
 const bookingModel = require("../models/booking");
 const wrapper = require("../utils/wrapper");
 const groupingSection = require("../utils/groupingSection");
-const supabase = require("../config/supabase");
 
 module.exports = {
   createBooking: async (request, response) => {

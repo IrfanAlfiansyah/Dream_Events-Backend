@@ -111,7 +111,6 @@ module.exports = {
   },
   updateUser: async (request, response) => {
     try {
-      console.log(request.body);
       const { userId } = request.params;
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;
@@ -155,7 +154,6 @@ module.exports = {
         result.data
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -205,7 +203,6 @@ module.exports = {
   },
   updatePassword: async (request, response) => {
     try {
-      console.log(request.body);
       const { oldPassword, confirmPassword, newPassword } = request.body;
       const { userId } = request.params;
       const checkOldPassword = await userModel.getUserById(userId);
@@ -236,7 +233,6 @@ module.exports = {
         newResult.data
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
