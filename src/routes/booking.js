@@ -18,4 +18,11 @@ Router.get(
   bookingController.getBookingByEventId
 );
 
+Router.patch(
+  "/bookingSection/:sectionId",
+  authMiddleware.authentication,
+  authMiddleware.isAdmin,
+  bookingController.updateBookingStatus
+);
+
 module.exports = Router;

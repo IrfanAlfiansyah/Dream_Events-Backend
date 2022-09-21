@@ -69,4 +69,32 @@ module.exports = {
           }
         });
     }),
+  getBookingBySectionId: (sectionId) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("bookingSection")
+        .select(`statusUsed`)
+        .eq("sectionId", sectionId)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+  updateBookingStatus: (sectionId, data) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("bookingSection")
+        .update(data)
+        .eq("sectionId", sectionId)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
 };

@@ -127,4 +127,43 @@ module.exports = {
       return wrapper.response(response, status, statusText, errorData);
     }
   },
+  updateBookingStatus: async (request, response) => {
+    try {
+      const { sectionId } = request.params;
+
+      const checkSectionId = await bookingModel.getBookingBySectionId(
+        sectionId
+      );
+
+      if (checkSectionId.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data By sectionId ${sectionId} Not Found`,
+          []
+        );
+      }
+
+      const setData = {
+        statusUsed: true,
+        updatedAt: new Date(Date.now()),
+      };
+
+      const result = await bookingModel.updateBookingStatus(sectionId, setData);
+
+      return wrapper.response(
+        response,
+        result.status,
+        "Success Use Ticket",
+        result.data
+      );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
 };
