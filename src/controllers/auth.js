@@ -45,6 +45,8 @@ module.exports = {
         OTP: `${OTP}`,
       };
 
+      client.setEx(`OTP:${OTP}`, 120, OTP);
+
       await sendMail(setMailOptions);
 
       return wrapper.response(
@@ -174,7 +176,7 @@ module.exports = {
           expiresIn: "30s",
         });
         newRefreshToken = jwt.sign(payload, process.env.REFRESH_KEYS, {
-          expiresIn: "36h",
+          expiresIn: "72h",
         });
         client.setEx(`refreshToken:${refreshtoken}`, 3600 * 36, refreshtoken);
       });
@@ -197,7 +199,22 @@ module.exports = {
     try {
       // eslint-disable-next-line no-unused-vars
       const { OTP } = request.body;
-      return wrapper.response(response, 200, "Verify Success", null);
+
+      if (!OTP) {
+        return wrapper.response(response, 400, "OTP must be filled !");
+      }
+
+      const checkOTP = await client.get(`OTP:${OTP}`);
+
+      if (checkOTP) {
+        return wrapper.response(response, 200, "Verify Success", null);
+      }
+      return wrapper.response(
+        response,
+        404,
+        "OTP doesn't match, please input the correct one !",
+        null
+      );
     } catch (error) {
       const {
         status = 500,
