@@ -5,6 +5,7 @@ const authModel = require("../models/auth");
 const wrapper = require("../utils/wrapper");
 const client = require("../config/redis");
 const { sendMail } = require("../utils/mail");
+const userModel = require("../models/user");
 
 module.exports = {
   register: async (request, response) => {
@@ -17,7 +18,7 @@ module.exports = {
         return wrapper.response(
           response,
           result.status,
-          "Your input email already used!"
+          "Your Input Email Already Used!"
         );
       }
 
@@ -32,6 +33,8 @@ module.exports = {
       const newResult = await authModel.register(setData);
 
       const OTP = otpGenerator.generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
         upperCaseAlphabets: false,
         specialChars: false,
       });
@@ -52,7 +55,7 @@ module.exports = {
       return wrapper.response(
         response,
         200,
-        "Register success, please check your email !",
+        "Register Success, Please Check Your Email !",
         newResult.data.map((el) => el.userId)
       );
     } catch (error) {
@@ -84,7 +87,7 @@ module.exports = {
         return wrapper.response(
           response,
           400,
-          "Email or password is wrong",
+          "Email Or Password Is Wrong",
           null
         );
       }
@@ -154,7 +157,7 @@ module.exports = {
         return wrapper.response(
           response,
           403,
-          "Your token is destroyed please login again",
+          "Your Token Is Destroyed Please Login Again",
           null
         );
       }
@@ -198,13 +201,21 @@ module.exports = {
   verif: async (request, response) => {
     try {
       // eslint-disable-next-line no-unused-vars
-      const { OTP } = request.body;
+      const { OTP } = request.query;
 
       if (!OTP) {
-        return wrapper.response(response, 400, "OTP must be filled !");
+        return wrapper.response(response, 400, "OTP Must Be Filled !");
       }
 
       const checkOTP = await client.get(`OTP:${OTP}`);
+
+      if (!checkOTP) {
+        return wrapper.response(
+          response,
+          404,
+          "OTP Was Expired, Please Click Resend To Renew Your OTP"
+        );
+      }
 
       if (checkOTP) {
         return wrapper.response(response, 200, "Verify Success", null);
@@ -212,8 +223,116 @@ module.exports = {
       return wrapper.response(
         response,
         404,
-        "OTP doesn't match, please input the correct one !",
+        "OTP Doesn't Match, Please Input The Correct One !",
         null
+      );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  forgotPassword: async (request, response) => {
+    try {
+      const { email } = request.body;
+
+      const result = await authModel.getUserByEmail(email);
+
+      if (result.data.length < 1) {
+        return wrapper.response(
+          response,
+          result.status,
+          "Your Input Email Is Not Registered !"
+        );
+      }
+
+      const setData = {
+        password: null,
+        updatedAt: new Date(Date.now()),
+      };
+      const newResult = await authModel.getUserByEmail(email, setData);
+
+      const OTP = otpGenerator.generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        upperCaseAlphabets: false,
+        specialChars: false,
+      });
+
+      const setMailOptions = {
+        to: email,
+        subject: "forgot Password !",
+        template: "forgotPassword.html",
+        buttonUrl: `http://localhost:3001/api/auth/forgotPassword`,
+        OTP: `${OTP}`,
+      };
+
+      client.setEx(`OTP:${OTP}`, 300, OTP);
+
+      await sendMail(setMailOptions);
+
+      return wrapper.response(
+        response,
+        200,
+        "Please Check Your Email To Reset Your Password !",
+        newResult.data.map((el) => el.userId)
+      );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  resetPassword: async (request, response) => {
+    try {
+      const { userId, newPassword, confirmPassword } = request.body;
+
+      const { OTP } = request.query;
+
+      if (!OTP) {
+        return wrapper.response(response, 400, "OTP Must Be Filled !");
+      }
+      if (newPassword !== confirmPassword) {
+        return wrapper.response(response, 400, "Your Password Doesn't Match");
+      }
+
+      const checkOTP = await client.get(`OTP:${OTP}`);
+
+      if (!checkOTP) {
+        return wrapper.response(
+          response,
+          404,
+          "OTP Was Expired, Please Click Resend To Renew Your OTP"
+        );
+      }
+
+      if (!checkOTP) {
+        return wrapper.response(
+          response,
+          404,
+          "OTP Doesn't Match, Please Input The Correct One !",
+          null
+        );
+      }
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      const setData = {
+        password: hashedPassword,
+        updatedAt: new Date(Date.now()),
+      };
+      const newResult = await authModel.resetPassword(userId, setData);
+
+      return wrapper.response(
+        response,
+        200,
+        "Your Password Has Been Reset !",
+        newResult.data.map((el) => el.userId)
       );
     } catch (error) {
       const {

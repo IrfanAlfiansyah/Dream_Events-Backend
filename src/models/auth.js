@@ -42,4 +42,31 @@ module.exports = {
           }
         });
     }),
+  forgotPassword: (data) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("user")
+        .insert([data])
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
+  resetPassword: (userId, data) =>
+    new Promise((resolve, reject) => {
+      supabase
+        .from("user")
+        .update(data)
+        .eq("userId", userId)
+        .then((result) => {
+          if (!result.error) {
+            resolve(result);
+          } else {
+            reject(result);
+          }
+        });
+    }),
 };
