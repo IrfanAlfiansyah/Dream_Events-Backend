@@ -43,7 +43,7 @@ module.exports = {
         name: username,
         subject: "Email Verification !",
         template: "verificationEmail.html",
-        buttonUrl: `http://localhost:3001/api/auth/verif`,
+        buttonUrl: `http://localhost:3001/api/auth/verif/${OTP}`,
         OTP: `${OTP}`,
       };
 

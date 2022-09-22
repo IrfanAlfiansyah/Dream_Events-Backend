@@ -6,12 +6,12 @@ const client = require("../config/redis");
 module.exports = {
   getAllEvent: async (request, response) => {
     try {
-      let { page, limit, sort, searchDate, searchName } = request.query;
+      let { page, limit, sort, searchDate, name } = request.query;
       page = +page;
       limit = +limit;
       sort = `${sort}`;
       searchDate = `${searchDate}`;
-      searchName = `${searchName}`;
+      name = `${name}`;
 
       const totalData = await eventModel.getCountEvent();
       const totalPage = Math.ceil(totalData / limit);
@@ -41,8 +41,9 @@ module.exports = {
       let day;
       let nextDay;
       if (searchDate) {
-        day = new Date(searchDate);
-        nextDay = new Date(new Date(day).setDate(day.getDate() + 1));
+        searchDate = new Date(searchDate);
+        day = new Date(new Date(searchDate).setDate(searchDate.getDate() - 1));
+        nextDay = new Date(new Date(day).setDate(day.getDate() + 2));
       }
 
       const result = await eventModel.getAllEvent(
@@ -52,9 +53,8 @@ module.exports = {
         sortType,
         day,
         nextDay,
-        searchName
+        name
       );
-
       client.setEx(
         `getEvent:${JSON.stringify(request.query)}`,
         3600,

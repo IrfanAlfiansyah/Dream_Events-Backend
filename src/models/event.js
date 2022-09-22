@@ -30,7 +30,7 @@ module.exports = {
   //         }
   //       });
   //   }),
-  getAllEvent: (offset, limit, sortColumn, sortType, day, nextDay) =>
+  getAllEvent: (offset, limit, sortColumn, sortType, day, nextDay, name) =>
     new Promise((resolve, reject) => {
       // page = 1
       // limit = 10
@@ -41,7 +41,7 @@ module.exports = {
         .select("*")
         .range(offset, offset + limit - 1)
         .order(sortColumn, { ascending: sortType })
-        .ilike("name", `%...%`);
+        .ilike("name", `%${name}%`);
       // kondisi untuk search by date
       if (day) {
         query = query
