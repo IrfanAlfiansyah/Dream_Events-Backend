@@ -4,7 +4,6 @@ const wrapper = require("../utils/wrapper");
 module.exports = {
   showGreetings: async (request, response) => {
     try {
-      // return response.status(200).send("Hello World!");
       return wrapper.response(
         response,
         200,
@@ -22,7 +21,6 @@ module.exports = {
   },
   getAllProduct: async (request, response) => {
     try {
-      console.log(request.query); // uji hasil log
       let { page, limit } = request.query;
       page = +page;
       limit = +limit;
@@ -48,7 +46,6 @@ module.exports = {
         pagination
       );
     } catch (error) {
-      console.log(error); // uji hasil log
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -94,7 +91,6 @@ module.exports = {
   },
   createProduct: async (request, response) => {
     try {
-      console.log(request.body);
       const { name, price } = request.body;
       const setData = {
         name,
@@ -120,8 +116,6 @@ module.exports = {
   },
   updateProduct: async (request, response) => {
     try {
-      console.log(request.params);
-      console.log(request.body);
       const { id } = request.params;
       const { name, price } = request.body;
 

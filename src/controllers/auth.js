@@ -5,7 +5,6 @@ const authModel = require("../models/auth");
 const wrapper = require("../utils/wrapper");
 const client = require("../config/redis");
 const { sendMail } = require("../utils/mail");
-const userModel = require("../models/user");
 
 module.exports = {
   register: async (request, response) => {

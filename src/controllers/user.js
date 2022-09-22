@@ -141,6 +141,7 @@ module.exports = {
       const imageId = checkId.data[0].image.split(".")[0];
       if (request.file) {
         await cloudinary.uploader.destroy(imageId, (result) => {
+          // eslint-disable-next-line no-console
           console.log(result);
         });
       }
@@ -181,6 +182,7 @@ module.exports = {
       const image = checkId.data[0].image.split(".")[0];
       if (image) {
         await cloudinary.uploader.destroy(image, (result) => {
+          // eslint-disable-next-line no-console
           console.log(result);
         });
       }
@@ -206,7 +208,6 @@ module.exports = {
       const { oldPassword, confirmPassword, newPassword } = request.body;
       const { userId } = request.params;
       const checkOldPassword = await userModel.getUserById(userId);
-      console.log(checkOldPassword);
 
       const isValid = await bcrypt.compare(
         oldPassword,

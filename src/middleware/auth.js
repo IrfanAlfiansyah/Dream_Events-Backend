@@ -3,6 +3,7 @@ const wrapper = require("../utils/wrapper");
 const client = require("../config/redis");
 
 module.exports = {
+  // eslint-disable-next-line consistent-return
   authentication: async (request, response, next) => {
     try {
       let token = request.headers.authorization;
@@ -22,6 +23,7 @@ module.exports = {
         );
       }
 
+      // eslint-disable-next-line consistent-return
       jwt.verify(token, process.env.ACCESS_KEYS, (error, payload) => {
         if (error) {
           return wrapper.response(response, 403, error, null);

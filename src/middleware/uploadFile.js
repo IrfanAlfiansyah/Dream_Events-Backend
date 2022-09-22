@@ -32,7 +32,8 @@ module.exports = {
       },
     });
 
-    const imageOnlyFilter = (request, file, callback) => {
+    // eslint-disable-next-line consistent-return,
+    const imageOnlyFilter = (_request, file, callback) => {
       if (
         file.mimetype === "image/png" ||
         file.mimetype === "image/jpg" ||
@@ -52,6 +53,7 @@ module.exports = {
 
     const upload = imageUpload.single("image");
 
+    // eslint-disable-next-line consistent-return
     upload(request, response, (err) => {
       if (err instanceof multer.MulterError) {
         // A Multer error occurred when uploading.
