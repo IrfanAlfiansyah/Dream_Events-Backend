@@ -11,6 +11,7 @@ module.exports = {
       limit = +limit;
       sort = `${sort}`;
       searchDate = `${searchDate}`;
+      searchName = `${searchName}`;
 
       const totalData = await eventModel.getCountEvent();
       const totalPage = Math.ceil(totalData / limit);
@@ -26,7 +27,9 @@ module.exports = {
       let sortColumn = "dateTimeShow";
       let sortType = "asc";
       if (sort) {
+        // eslint-disable-next-line prefer-destructuring
         sortColumn = sort.split(" ")[0];
+        // eslint-disable-next-line prefer-destructuring
         sortType = sort.split(" ")[1];
       }
       if (sortType.toLowerCase() === "asc") {
@@ -66,7 +69,6 @@ module.exports = {
         pagination
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -99,7 +101,6 @@ module.exports = {
         result.data
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -176,6 +177,7 @@ module.exports = {
       const imageId = checkId.data[0].image.split(".")[0];
       if (request.file) {
         await cloudinary.uploader.destroy(imageId, (result) => {
+          // eslint-disable-next-line no-console
           console.log(result);
         });
       }
@@ -215,6 +217,7 @@ module.exports = {
       const image = checkId.data[0].image.split(".")[0];
       if (image) {
         await cloudinary.uploader.destroy(image, (result) => {
+          // eslint-disable-next-line no-console
           console.log(result);
         });
       }
