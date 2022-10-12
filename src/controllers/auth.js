@@ -27,7 +27,7 @@ module.exports = {
         username,
         email,
         password: hashedPassword,
-        role: "user",
+        role: "admin",
       };
       const newResult = await authModel.register(setData);
 
@@ -58,6 +58,7 @@ module.exports = {
         newResult.data.map((el) => el.userId)
       );
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
