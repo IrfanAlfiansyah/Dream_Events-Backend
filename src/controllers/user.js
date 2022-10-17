@@ -4,6 +4,7 @@ const wrapper = require("../utils/wrapper");
 const cloudinary = require("../config/cloudinary");
 
 module.exports = {
+  // baris baru
   getAllUser: async (request, response) => {
     try {
       let { page, limit } = request.query;
