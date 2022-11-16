@@ -38,18 +38,18 @@ module.exports = {
         specialChars: false,
       });
 
-      const setMailOptions = {
-        to: email,
-        name: username,
-        subject: "Email Verification !",
-        template: "verificationEmail.html",
-        buttonUrl: `http://localhost:3001/api/auth/verif/${OTP}`,
-        OTP: `${OTP}`,
-      };
+      // const setMailOptions = {
+      //   to: email,
+      //   name: username,
+      //   subject: "Email Verification !",
+      //   template: "verificationEmail.html",
+      //   buttonUrl: `http://localhost:3001/api/auth/verif/${OTP}`,
+      //   OTP: `${OTP}`,
+      // };
 
-      client.setEx(`OTP:${OTP}`, 120, OTP);
+      // client.setEx(`OTP:${OTP}`, 120, OTP);
 
-      await sendMail(setMailOptions);
+      // await sendMail(setMailOptions);
 
       return wrapper.response(
         response,
