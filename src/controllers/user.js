@@ -116,6 +116,7 @@ module.exports = {
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;
       const { filename } = request.file;
+      console.log(request.file);
 
       const checkId = await userModel.getUserById(userId);
 
@@ -139,13 +140,13 @@ module.exports = {
         updatedAt: new Date(Date.now()),
       };
 
-      const imageId = checkId.data[0].image.split(".")[0];
-      if (request.file) {
-        await cloudinary.uploader.destroy(imageId, (result) => {
-          // eslint-disable-next-line no-console
-          console.log(result);
-        });
-      }
+      // const imageId = checkId.data[0].image.split(".")[0];
+      // if (request.file) {
+      //   await cloudinary.uploader.destroy(imageId, (result) => {
+      //     // eslint-disable-next-line no-console
+      //     console.log(result);
+      //   });
+      // }
 
       const result = await userModel.updateUser(userId, setData);
 
