@@ -24,5 +24,6 @@ Router.patch(
   authMiddleware.isAdmin,
   bookingController.updateBookingStatus
 );
+Router.post("/midtrans-notification", bookingController.midtransNotification);
 
 module.exports = Router;
