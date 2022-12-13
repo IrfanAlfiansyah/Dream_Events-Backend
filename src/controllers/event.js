@@ -2,6 +2,7 @@ const eventModel = require("../models/event");
 const wrapper = require("../utils/wrapper");
 const cloudinary = require("../config/cloudinary");
 const client = require("../config/redis");
+const admin = require("../config/firebase");
 
 module.exports = {
   getAllEvent: async (request, response) => {
@@ -131,6 +132,14 @@ module.exports = {
       };
 
       const result = await eventModel.createEvent(setData);
+      admin.messaging().send({
+        // token: "fphfDhRlSH6e1ltR4cSZVp:APA91bGCnGrhU0dJDN9wOfmMhWxmpU6wWz0ovIocEZdbTE8unaxU9ERiuXQrxWp01iRx-mzqDy2fJYdODwBTgnxBvfcbJ44ODL9eRITSJppdJI_VucxhEMt5NQIoplwl2LkBZIyr90Ap",
+        topic: "new-event",
+        notification: {
+          title: "New Event",
+          body: `Event ${name}, sudah release!`,
+        },
+      });
 
       return wrapper.response(
         response,
