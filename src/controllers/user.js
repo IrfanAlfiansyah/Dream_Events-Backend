@@ -115,9 +115,7 @@ module.exports = {
       const { userId } = request.params;
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;
-      const { filename } = request.file;
-      console.log(request.file);
-
+      // const { filename } = request.file;
       const checkId = await userModel.getUserById(userId);
 
       if (checkId.data.length < 1) {
@@ -136,7 +134,7 @@ module.exports = {
         profession,
         nationality,
         dateOfBirth,
-        image: filename ? `${filename}` : "",
+        // image: filename ? `${filename}` : "",
         updatedAt: new Date(Date.now()),
       };
 
@@ -157,7 +155,6 @@ module.exports = {
         result.data
       );
     } catch (error) {
-      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
@@ -235,6 +232,65 @@ module.exports = {
         201,
         "Success Update Password",
         newResult.data
+      );
+    } catch (error) {
+      const {
+        status = 500,
+        statusText = "Internal Server Error",
+        error: errorData = null,
+      } = error;
+      return wrapper.response(response, status, statusText, errorData);
+    }
+  },
+  updateImage: async (request, response) => {
+    try {
+      const { userId } = request.params;
+      // const { filename } = request.file;
+
+      const checkId = await userModel.getUserById(userId);
+
+      if (checkId.data.length < 1) {
+        return wrapper.response(
+          response,
+          404,
+          `Data By Id ${userId} Not Found`,
+          []
+        );
+      }
+
+      let image;
+      if (request.file) {
+        const { filename, mimetype } = request.file;
+        image = filename ? `${filename}.${mimetype.split("/")[1]}` : "";
+
+        if (checkId.data[0].image) {
+          cloudinary.uploader.destroy(
+            checkId.data[0].image.split(".")[0],
+            (result) => result
+          );
+        }
+      }
+      if (!request.file) {
+        return wrapper.response(response, 404, "Image Must Be Filled");
+      }
+
+      const setData = {
+        image,
+      };
+      const result = await userModel.updateUser(userId, setData);
+      const newResult = [
+        {
+          userId: result.data[0].userId,
+          image: result.data[0].image,
+          createdAt: result.data[0].createdAt,
+          updatedAt: result.data[0].updatedAt,
+        },
+      ];
+      return wrapper.response(
+        response,
+        result.status,
+        "Success Update Image",
+        newResult
       );
     } catch (error) {
       const {
