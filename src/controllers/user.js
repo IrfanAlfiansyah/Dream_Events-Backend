@@ -115,7 +115,6 @@ module.exports = {
       const { userId } = request.params;
       const { name, username, gender, profession, nationality, dateOfBirth } =
         request.body;
-      // const { filename } = request.file;
       const checkId = await userModel.getUserById(userId);
 
       if (checkId.data.length < 1) {
@@ -134,17 +133,8 @@ module.exports = {
         profession,
         nationality,
         dateOfBirth,
-        // image: filename ? `${filename}` : "",
         updatedAt: new Date(Date.now()),
       };
-
-      // const imageId = checkId.data[0].image.split(".")[0];
-      // if (request.file) {
-      //   await cloudinary.uploader.destroy(imageId, (result) => {
-      //     // eslint-disable-next-line no-console
-      //     console.log(result);
-      //   });
-      // }
 
       const result = await userModel.updateUser(userId, setData);
 
@@ -245,7 +235,6 @@ module.exports = {
   updateImage: async (request, response) => {
     try {
       const { userId } = request.params;
-      // const { filename } = request.file;
 
       const checkId = await userModel.getUserById(userId);
 

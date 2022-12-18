@@ -47,7 +47,7 @@ module.exports = {
 
     const imageUpload = multer({
       storage,
-      limits: { fileSize: 5e5 },
+      limits: { fileSize: 2e6 },
       fileFilter: imageOnlyFilter,
     });
 
