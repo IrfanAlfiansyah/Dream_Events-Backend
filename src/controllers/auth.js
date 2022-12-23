@@ -11,6 +11,12 @@ module.exports = {
     try {
       const { username, email, password } = request.body;
 
+      const validateEmail = () =>
+        email.match(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/);
+      if (!validateEmail(email)) {
+        return wrapper.response(response, 400, "Email is not valid", null);
+      }
+
       const result = await authModel.getUserByEmail(email);
 
       if (result.data.length >= 1) {
@@ -31,12 +37,12 @@ module.exports = {
       };
       const newResult = await authModel.register(setData);
 
-      const OTP = otpGenerator.generate(6, {
-        digits: true,
-        lowerCaseAlphabets: false,
-        upperCaseAlphabets: false,
-        specialChars: false,
-      });
+      // const OTP = otpGenerator.generate(6, {
+      //   digits: true,
+      //   lowerCaseAlphabets: false,
+      //   upperCaseAlphabets: false,
+      //   specialChars: false,
+      // });
 
       // const setMailOptions = {
       //   to: email,
@@ -281,6 +287,7 @@ module.exports = {
         newResult.data.map((el) => el.userId)
       );
     } catch (error) {
+      console.log(error);
       const {
         status = 500,
         statusText = "Internal Server Error",
